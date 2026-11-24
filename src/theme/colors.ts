@@ -1,10 +1,23 @@
-export const COLORS = {
-  background: '#0B0A1A', // Bleu très foncé (fond de votre PPT)
-  primary: '#5D5FEF', // Le violet/bleu de l'application
-  secondary: '#00D1FF', // Un bleu clair pour les accents
-  text: '#FFFFFF', // Texte blanc
-  textGray: '#A0A0B0', // Texte secondaire
-  card: '#1A1930', // Fond des cartes
-  danger: '#FF4C4C', // Pour l'IA (signalements)
-  success: '#00C853', // Pour les validations
+export const DarkTheme = {
+  background: '#0B0A1A',
+  card: '#1A1930',
+  border: '#2A2945',
+  primary: '#5D5FEF',
+  text: '#FFFFFF',
+  textGray: '#A0A0B0',
+  danger: '#FF4C4C',
+  success: '#00C853',
+  inputBg: '#1A1930',
+};
+
+export const LightTheme = {
+  background: '#F5F6FA',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  primary: '#5D5FEF',
+  text: '#1A1930',
+  textGray: '#6B7280',
+  danger: '#EF4444',
+  success: '#10B981',
+  inputBg: '#FFFFFF',
 };

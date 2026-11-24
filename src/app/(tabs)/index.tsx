@@ -1,61 +1,233 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView } from 'react-native';
-import { COLORS } from '../../theme/colors';
-import { MOCK_ANNONCES } from '../../data/mockData';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { MOCK_ANNONCES } from '../../data/mockData';
+import AnnouncementCard from '../../components/AnnouncementCard';
+import { useTheme } from '../../context/ThemeContext';
+
+const FILTERS = ['Tout', 'Officiel', 'Urgent', 'Entraide'];
 
 export default function AccueilScreen() {
-  const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Ionicons
-          name={
-            item.type === 'urgent'
-              ? 'warning'
-              : item.type === 'info'
-                ? 'information-circle'
-                : 'people'
-          }
-          size={20}
-          color={item.type === 'urgent' ? COLORS.danger : COLORS.primary}
-        />
-        <Text style={styles.cardAuthor}>{item.auteur}</Text>
-      </View>
-      <Text style={styles.cardTitle}>{item.titre}</Text>
-      <Text style={styles.cardDate}>{item.date}</Text>
-    </View>
-  );
+  const { colors, theme, toggleTheme } = useTheme();
+  const styles = getStyles(colors);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('Tout');
+  const [isDelegateMode, setIsDelegateMode] = useState(false);
+
+  const filteredAnnonces = MOCK_ANNONCES.filter((annonce) => {
+    const matchesSearch =
+      annonce.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      annonce.auteur.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesFilter = true;
+    if (activeFilter === 'Officiel') matchesFilter = annonce.role !== 'Étudiant';
+    if (activeFilter === 'Urgent') matchesFilter = annonce.type === 'urgent';
+    if (activeFilter === 'Entraide') matchesFilter = annonce.type === 'entraide';
+    return matchesSearch && matchesFilter;
+  });
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>
-          UniShare <Text style={{ color: COLORS.primary }}>Feed</Text>
-        </Text>
+        <View style={styles.headerTop}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>M</Text>
+          </View>
+          <Text style={styles.appName}>UniShare</Text>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
+            {/* Bouton Light/Dark Mode */}
+            <TouchableOpacity onPress={toggleTheme}>
+              <Ionicons
+                name={theme === 'dark' ? 'sunny-outline' : 'moon-outline'}
+                size={24}
+                color={colors.text}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+              <Ionicons name="notifications-outline" size={24} color={colors.text} />
+              <View style={[styles.notificationDot, { backgroundColor: colors.danger }]} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <Text style={styles.welcomeText}>Bonjour Melyna 👋</Text>
+
+        <TouchableOpacity
+          style={[styles.delegateToggle, isDelegateMode && { backgroundColor: colors.primary }]}
+          onPress={() => setIsDelegateMode(!isDelegateMode)}
+        >
+          <Ionicons
+            name={isDelegateMode ? 'shield-checkmark' : 'shield-outline'}
+            size={16}
+            color={isDelegateMode ? '#FFF' : colors.text}
+          />
+          <Text
+            style={[styles.delegateToggleText, { color: isDelegateMode ? '#FFF' : colors.text }]}
+          >
+            Mode Délégué {isDelegateMode ? 'ON' : 'OFF'}
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Recherche */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color={colors.textGray} />
+        <TextInput
+          placeholder="Rechercher (IA)..."
+          placeholderTextColor={colors.textGray}
+          style={[styles.searchInput, { color: colors.text }]}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+        <Ionicons name="sparkles" size={20} color={colors.primary} />
+      </View>
+
+      {/* Filtres */}
+      <View style={{ height: 50 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filtersContainer}
+        >
+          {FILTERS.map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              style={[
+                styles.filterPill,
+                { borderColor: colors.border },
+                activeFilter === filter && {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                },
+              ]}
+              onPress={() => setActiveFilter(filter)}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  { color: colors.textGray },
+                  activeFilter === filter && { color: '#FFF' },
+                ]}
+              >
+                {filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {/* Liste */}
       <FlatList
-        data={MOCK_ANNONCES}
+        data={filteredAnnonces}
         keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
+        renderItem={({ item }) => <AnnouncementCard item={item} isDelegateMode={isDelegateMode} />}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <Text style={{ color: colors.textGray, textAlign: 'center', marginTop: 20 }}>
+            Aucune annonce trouvée.
+          </Text>
+        }
       />
+
+      {/* Bouton flottant */}
+      <TouchableOpacity style={[styles.fab, { backgroundColor: colors.primary }]}>
+        <Ionicons name="add" size={30} color="#FFF" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  header: { padding: 20, paddingTop: 40, borderBottomWidth: 1, borderBottomColor: COLORS.card },
-  title: { fontSize: 24, fontWeight: 'bold', color: COLORS.text },
-  card: {
-    backgroundColor: COLORS.card,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  cardAuthor: { color: COLORS.textGray, marginLeft: 8, fontSize: 14, fontWeight: '600' },
-  cardTitle: { color: COLORS.text, fontSize: 16, marginBottom: 10 },
-  cardDate: { color: COLORS.textGray, fontSize: 12 },
-});
+// Styles dynamiques
+const getStyles = (colors: any) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    header: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 },
+    headerTop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarText: { color: '#FFF', fontWeight: 'bold', fontSize: 18 },
+    appName: { fontSize: 22, fontWeight: 'bold', color: colors.text },
+    notificationDot: {
+      position: 'absolute',
+      top: 0,
+      right: 2,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+    welcomeText: { fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 10 },
+    delegateToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      backgroundColor: colors.card,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
+      borderRadius: 20,
+      marginTop: 5,
+      gap: 5,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    delegateToggleText: { fontSize: 12, fontWeight: 'bold' },
+    searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.inputBg,
+      marginHorizontal: 20,
+      paddingHorizontal: 15,
+      borderRadius: 12,
+      height: 50,
+      marginBottom: 15,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    searchInput: { flex: 1, marginLeft: 10, fontSize: 16 },
+    filtersContainer: { paddingHorizontal: 20, alignItems: 'center', gap: 10 },
+    filterPill: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+    },
+    filterText: { fontSize: 14, fontWeight: '600' },
+    fab: {
+      position: 'absolute',
+      bottom: 20,
+      right: 20,
+      width: 60,
+      height: 60,
+      borderRadius: 30,
+      justifyContent: 'center',
+      alignItems: 'center',
+      elevation: 5,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 3,
+    },
+  });
