@@ -55,10 +55,22 @@ export default function AccueilScreen() {
                 color={colors.text}
               />
             </TouchableOpacity>
-            <TouchableOpacity>
-              <Ionicons name="notifications-outline" size={24} color={colors.text} />
-              <View style={[styles.notificationDot, { backgroundColor: colors.danger }]} />
-            </TouchableOpacity>
+            <TouchableOpacity
+  onPress={() => router.push('/notifications')}
+  activeOpacity={0.7}
+>
+  <Ionicons
+    name="notifications-outline"
+    size={24}
+    color={colors.text}
+  />
+  <View
+    style={[
+      styles.notificationDot,
+      { backgroundColor: colors.danger },
+    ]}
+  />
+</TouchableOpacity>
           </View>
         </View>
         <Text style={styles.welcomeText}>Bonjour Melyna 👋</Text>
@@ -197,5 +209,5 @@ const getStyles = (colors: any) =>
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.3,
       shadowRadius: 3,
-    },
-  });
+     },
+});
