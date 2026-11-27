@@ -7,21 +7,24 @@ import { router } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useUser } from '../../context/UserContext';
+import { Specialty } from '../../data/mockData'; // <-- ✅ ADDED IMPORT
 
 const ROLES = ['Étudiant', 'Délégué', 'Admin'];
 
 export default function RegisterScreen() {
   const { colors } = useTheme();
-  const { login } = useUser(); //
+  const { login } = useUser(); 
   const styles = getStyles(colors);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('Étudiant'); // Default role
+  const [role, setRole] = useState('Étudiant');
+  const [userSpecialty, setUserSpecialty] = useState<Specialty>('ISII'); // <-- ✅ ADDED STATE
 
   const handleRegister = () => {
-    login(role as 'Étudiant' | 'Délégué' | 'Admin');
+    // ✅ UPDATED FUNCTION (now passes the second argument)
+    login(role as any, role === 'Admin' ? null : userSpecialty);
   };
 
   return (
@@ -55,6 +58,27 @@ export default function RegisterScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* ✅ ADDED: Specialty Selector (hidden for Admin) */}
+        {role !== 'Admin' && (
+          <>
+            <Text style={styles.label}>Spécialité :</Text>
+            <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+              {(['ISII', 'RSE'] as Specialty[]).map((s) => (
+                <TouchableOpacity
+                  key={s}
+                  style={[
+                    { flex: 1, paddingVertical: 12, borderRadius: 10, borderWidth: 1, alignItems: 'center', borderColor: colors.border },
+                    userSpecialty === s && { backgroundColor: colors.primary, borderColor: colors.primary },
+                  ]}
+                  onPress={() => setUserSpecialty(s)}
+                >
+                  <Text style={{ color: userSpecialty === s ? '#FFF' : colors.text, fontWeight: 'bold' }}>{s}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
 
         {/* Inputs */}
         <Text style={styles.label}>Nom complet</Text>

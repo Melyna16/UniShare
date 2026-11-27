@@ -1,27 +1,28 @@
 // src/app/_layout.tsx
 import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, usePathname } from 'expo-router';
 import { ThemeProvider } from '../context/ThemeContext';
 import { UserProvider, useUser } from '../context/UserContext';
 import { AnnouncementProvider } from '../context/AnnouncementContext';
+import { MessageProvider } from '../context/MessageContext';
 
-// We separate the navigation logic into a child component
 function RootLayoutNav() {
   const { isAuthenticated } = useUser();
-  const segments = useSegments();
+  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    const inAuthGroup = segments[0] === 'auth';
+    // Check if the current URL is the login or register page
+    const inAuthGroup = pathname.includes('login') || pathname.includes('register');
 
     if (!isAuthenticated && !inAuthGroup) {
-      // If not logged in and not in auth screens, redirect to login
-      router.replace('/auth/login');
+      // If not logged in and trying to access home, go to login
+      router.replace('/(auth)/login');
     } else if (isAuthenticated && inAuthGroup) {
-      // If logged in and trying to access auth screens, redirect to home
+      // If logged in and on login page, go to home
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, segments]);
+  }, [isAuthenticated, pathname]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
@@ -36,7 +37,9 @@ export default function RootLayout() {
     <ThemeProvider>
       <UserProvider>
         <AnnouncementProvider>
-          <RootLayoutNav />
+          <MessageProvider>
+            <RootLayoutNav />
+          </MessageProvider>
         </AnnouncementProvider>
       </UserProvider>
     </ThemeProvider>

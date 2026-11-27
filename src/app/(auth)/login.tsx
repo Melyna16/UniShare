@@ -6,22 +6,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useUser } from '../../context/UserContext'; // <-- Added
+import { useUser } from '../../context/UserContext';
+import { Specialty } from '../../data/mockData';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
-  const { login } = useUser(); // <-- Added
+  const { login } = useUser();
   const styles = getStyles(colors);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // Added state to test different roles:
   const [loginRole, setLoginRole] = useState<'Étudiant' | 'Délégué' | 'Admin'>('Étudiant');
+  const [userSpecialty, setUserSpecialty] = useState<Specialty>('ISII');
 
   const handleLogin = () => {
-    // We log in with the selected role. 
-    // The _layout.tsx will automatically redirect to (tabs)!
-    login(loginRole); 
+    login(loginRole, loginRole === 'Admin' ? null : userSpecialty);
   };
 
   return (
@@ -70,7 +69,7 @@ export default function LoginScreen() {
             <Text style={styles.forgotText}>Mot de passe oublié ?</Text>
           </TouchableOpacity>
 
-          {/* 👇 ROLE SELECTOR (Only for testing) 👇 */}
+          {/* ROLE SELECTOR */}
           <Text style={styles.label}>Se connecter en tant que :</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
             {['Étudiant', 'Délégué', 'Admin'].map((r) => (
@@ -86,7 +85,27 @@ export default function LoginScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          {/* 👆 END OF ROLE SELECTOR 👆 */}
+
+          {/* SPECIALTY SELECTOR (hidden for Admin) */}
+          {loginRole !== 'Admin' && (
+            <>
+              <Text style={styles.label}>Spécialité :</Text>
+              <View style={{ flexDirection: 'row', gap: 10, marginBottom: 20 }}>
+                {(['ISII', 'RSE'] as Specialty[]).map((s) => (
+                  <TouchableOpacity
+                    key={s}
+                    style={[
+                      { flex: 1, padding: 10, borderWidth: 1, borderRadius: 8, alignItems: 'center', borderColor: colors.border },
+                      userSpecialty === s && { backgroundColor: colors.primary, borderColor: colors.primary },
+                    ]}
+                    onPress={() => setUserSpecialty(s)}
+                  >
+                    <Text style={{ color: userSpecialty === s ? '#FFF' : colors.text, fontWeight: 'bold' }}>{s}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
 
           {/* Login Button */}
           <TouchableOpacity onPress={handleLogin} style={styles.buttonWrapper}>
@@ -98,7 +117,7 @@ export default function LoginScreen() {
           {/* Register Link */}
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Pas encore de compte ? </Text>
-            <TouchableOpacity onPress={() => router.push('/auth/register')}>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
               <Text style={styles.registerLink}>S'inscrire</Text>
             </TouchableOpacity>
           </View>

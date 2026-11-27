@@ -3,12 +3,16 @@ import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { MOCK_RESSOURCES } from '../../data/mockData';
+import { MOCK_RESSOURCES, MOCK_DELEGATES } from '../../data/mockData';
 import { useTheme } from '../../context/ThemeContext';
+import { useUser } from '../../context/UserContext';
+import { useMessages } from '../../context/MessageContext';
 import SkeletonLoader from '../../components/SkeletonLoader';
 
 export default function ResourcesScreen() {
   const { colors } = useTheme();
+  const { userRole, specialty } = useUser();
+  const { createConversation } = useMessages();
   const styles = getStyles(colors);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -28,11 +32,25 @@ export default function ResourcesScreen() {
     }
   };
 
+  const handleSubmitResource = () => {
+    if (!specialty) return;
+    const delegate = MOCK_DELEGATES[specialty];
+    const newConv = createConversation({
+      id: `res-${Date.now()}`,
+      type: 'resource',
+      title: 'Nouvelle soumission de cours',
+      participantName: delegate.name,
+      specialty,
+      submittedBy: 'Melyna Doe',
+      status: 'pending',
+    });
+    router.push({ pathname: '/chat/[id]', params: { id: newConv.id } });
+  };
+
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.card}
       activeOpacity={0.7}
-      // ✅ CORRECTION ICI : Syntaxe objet pour TypeScript
       onPress={() => router.push({ pathname: '/resource/[id]', params: { id: item.id } })}
     >
       <View style={styles.iconContainer}>
@@ -44,7 +62,6 @@ export default function ResourcesScreen() {
           {item.module} • {item.type} • {item.taille}
         </Text>
       </View>
-
       <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={{ padding: 10 }}>
         <Ionicons
           name={favorites.includes(item.id) ? 'bookmark' : 'bookmark-outline'}
@@ -60,6 +77,16 @@ export default function ResourcesScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Ressources</Text>
       </View>
+
+      {userRole === 'Étudiant' && specialty && (
+        <TouchableOpacity onPress={handleSubmitResource} style={styles.submitBanner}>
+          <Ionicons name="cloud-upload-outline" size={20} color={colors.primary} />
+          <Text style={styles.submitBannerText}>
+            Envoyer un cours à valider au Délégué {specialty}
+          </Text>
+          <Ionicons name="arrow-forward" size={18} color={colors.primary} />
+        </TouchableOpacity>
+      )}
 
       {isLoading ? (
         <View style={{ padding: 16 }}>
@@ -86,6 +113,19 @@ const getStyles = (colors: any) =>
     container: { flex: 1, backgroundColor: colors.background },
     header: { padding: 20, paddingTop: 40, borderBottomWidth: 1, borderBottomColor: colors.border },
     headerTitle: { fontSize: 20, fontWeight: 'bold', color: colors.text },
+    submitBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      marginHorizontal: 16,
+      marginTop: 12,
+      padding: 14,
+      backgroundColor: colors.primary + '15',
+      borderWidth: 1,
+      borderColor: colors.primary,
+      borderRadius: 12,
+    },
+    submitBannerText: { flex: 1, color: colors.primary, fontWeight: '600', fontSize: 13 },
     card: {
       flexDirection: 'row',
       backgroundColor: colors.card,
