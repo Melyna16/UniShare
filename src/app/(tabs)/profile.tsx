@@ -2,11 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
-import { useUser } from '../../context/UserContext'; // <-- Import
+import { useUser } from '../../context/UserContext'; 
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
-  const { isDelegateMode, toggleDelegateMode } = useUser(); // <-- Récupération de l'état
+  
+  // ✅ 1. On récupère le rôle et la fonction logout
+  const { userRole, logout } = useUser(); 
   const styles = getStyles(colors);
 
   return (
@@ -29,7 +31,8 @@ export default function ProfileScreen() {
 
           <View style={styles.badgeContainer}>
             <Ionicons name="shield-checkmark" size={16} color={colors.primary} />
-            <Text style={styles.badgeText}>Étudiante Vérifiée</Text>
+            {/* Le badge change selon le rôle */}
+            <Text style={styles.badgeText}>{userRole} Vérifié(e)</Text> 
           </View>
         </View>
 
@@ -51,31 +54,13 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* BOUTON MODE DÉLÉGUÉ */}
-        <TouchableOpacity
-          style={[
-            styles.delegateToggle,
-            isDelegateMode && { backgroundColor: colors.primary, borderColor: colors.primary },
-          ]}
-          onPress={toggleDelegateMode}
-        >
-          <Ionicons
-            name={isDelegateMode ? 'shield-checkmark' : 'shield-outline'}
-            size={20}
-            color={isDelegateMode ? '#FFF' : colors.text}
-          />
-          <Text
-            style={[styles.delegateToggleText, { color: isDelegateMode ? '#FFF' : colors.text }]}
-          >
-            Mode Délégué {isDelegateMode ? 'ON' : 'OFF'}
+        {/* ✅ 2. Remplacement du bouton toggle par l'affichage du rôle */}
+        <View style={[styles.delegateToggle, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Ionicons name="shield-checkmark" size={20} color={colors.primary} />
+          <Text style={[styles.delegateToggleText, { color: colors.text }]}>
+            Rôle actuel : <Text style={{ color: colors.primary }}>{userRole}</Text>
           </Text>
-          <Ionicons
-            name={isDelegateMode ? 'toggle' : 'toggle-outline'}
-            size={24}
-            color={isDelegateMode ? '#FFF' : colors.textGray}
-            style={{ marginLeft: 'auto' }}
-          />
-        </TouchableOpacity>
+        </View>
 
         {/* Menu des paramètres */}
         <View style={styles.menuContainer}>
@@ -98,8 +83,8 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Bouton Déconnexion */}
-        <TouchableOpacity style={styles.logoutButton}>
+        {/* ✅ 3. Le bouton de déconnexion fonctionne maintenant */}
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Ionicons name="log-out-outline" size={20} color={colors.danger} />
           <Text style={styles.logoutText}>Se déconnecter</Text>
         </TouchableOpacity>

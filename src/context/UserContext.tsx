@@ -1,30 +1,42 @@
+// src/context/UserContext.tsx
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-// 1. On définit ce que le contexte va contenir
+type UserRole = 'Étudiant' | 'Délégué' | 'Admin';
+
 interface UserContextType {
-  isDelegateMode: boolean;
-  toggleDelegateMode: () => void;
+  isAuthenticated: boolean;
+  userRole: UserRole | null;
+  isDelegateMode: boolean; // Derived from userRole for backwards compatibility
+  login: (role: UserRole) => void;
+  logout: () => void;
 }
 
-// 2. On crée le contexte
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-// 3. On crée le Provider (qui va envelopper l'application)
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [isDelegateMode, setIsDelegateMode] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
-  const toggleDelegateMode = () => {
-    setIsDelegateMode((prev) => !prev);
+  const login = (role: UserRole) => {
+    setUserRole(role);
+    setIsAuthenticated(true);
   };
 
+  const logout = () => {
+    setUserRole(null);
+    setIsAuthenticated(false);
+  };
+
+  // We keep this so your existing code doesn't break!
+  const isDelegateMode = userRole === 'Délégué' || userRole === 'Admin';
+
   return (
-    <UserContext.Provider value={{ isDelegateMode, toggleDelegateMode }}>
+    <UserContext.Provider value={{ isAuthenticated, userRole, isDelegateMode, login, logout }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-// 4. On crée un hook personnalisé pour l'utiliser facilement
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
