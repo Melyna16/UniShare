@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 
-// Fausses données pour l'espace d'entraide
 const MOCK_ENTRAIDE = [
   {
     id: '1',
@@ -19,20 +19,6 @@ const MOCK_ENTRAIDE = [
     proprietaire: 'Sarah M.',
     icon: 'calculator',
   },
-  {
-    id: '3',
-    titre: 'Cours de Réseaux (L3)',
-    etat: 'Usé',
-    proprietaire: 'Yasmine K.',
-    icon: 'document-text',
-  },
-  {
-    id: '4',
-    titre: 'Matériel de dessin',
-    etat: 'Neuf',
-    proprietaire: 'Amine T.',
-    icon: 'color-palette',
-  },
 ];
 
 export default function EntraideScreen() {
@@ -40,7 +26,11 @@ export default function EntraideScreen() {
   const styles = getStyles(colors);
 
   const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      // ✅ CORRECTION ICI : Syntaxe objet pour TypeScript
+      onPress={() => router.push({ pathname: '/entraide/chat/[id]', params: { id: item.id } })}
+    >
       <View style={styles.imagePlaceholder}>
         <Ionicons name={item.icon as any} size={40} color={colors.primary} />
       </View>
@@ -55,6 +45,10 @@ export default function EntraideScreen() {
             {item.proprietaire}
           </Text>
         </View>
+        <View style={styles.contactButton}>
+          <Ionicons name="chatbubble-outline" size={14} color="#FFF" />
+          <Text style={styles.contactText}>Contacter</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -63,23 +57,15 @@ export default function EntraideScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Espace Entraide</Text>
-        <Text style={styles.headerSubtitle}>Troc de matériel & livres</Text>
       </View>
-
       <FlatList
         data={MOCK_ENTRAIDE}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        numColumns={2} // Affiche sur 2 colonnes
-        columnWrapperStyle={styles.row} // Espacement entre les colonnes
+        numColumns={2}
+        columnWrapperStyle={styles.row}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
       />
-
-      {/* Bouton flottant pour ajouter une annonce */}
-      <TouchableOpacity style={[styles.fab, { backgroundColor: colors.primary }]}>
-        <Ionicons name="add" size={30} color="#FFF" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -89,7 +75,6 @@ const getStyles = (colors: any) =>
     container: { flex: 1, backgroundColor: colors.background },
     header: { padding: 20, paddingTop: 40, borderBottomWidth: 1, borderBottomColor: colors.border },
     headerTitle: { fontSize: 20, fontWeight: 'bold', color: colors.text },
-    headerSubtitle: { fontSize: 13, color: colors.textGray, marginTop: 4 },
     row: { justifyContent: 'space-between' },
     card: {
       width: '48%',
@@ -111,21 +96,16 @@ const getStyles = (colors: any) =>
     cardContent: { padding: 12 },
     cardTitle: { fontSize: 14, fontWeight: 'bold', color: colors.text, marginBottom: 4 },
     cardCondition: { fontSize: 12, color: colors.primary, fontWeight: '600', marginBottom: 8 },
-    ownerContainer: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    ownerContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 10 },
     ownerText: { fontSize: 12, color: colors.textGray },
-    fab: {
-      position: 'absolute',
-      bottom: 20,
-      right: 20,
-      width: 60,
-      height: 60,
-      borderRadius: 30,
+    contactButton: {
+      backgroundColor: colors.primary,
+      flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      elevation: 5,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.3,
-      shadowRadius: 3,
+      padding: 6,
+      borderRadius: 6,
+      gap: 5,
     },
+    contactText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
   });

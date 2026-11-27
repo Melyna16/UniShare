@@ -1,15 +1,40 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { MOCK_RESSOURCES } from '../../data/mockData';
 import { useTheme } from '../../context/ThemeContext';
+import SkeletonLoader from '../../components/SkeletonLoader';
 
 export default function ResourcesScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const toggleFavorite = (id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter((favId) => favId !== id));
+    } else {
+      setFavorites([...favorites, id]);
+    }
+  };
+
   const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.7}
+      // ✅ CORRECTION ICI : Syntaxe objet pour TypeScript
+      onPress={() => router.push({ pathname: '/resource/[id]', params: { id: item.id } })}
+    >
       <View style={styles.iconContainer}>
         <Ionicons name="document-text" size={30} color={colors.primary} />
       </View>
@@ -19,7 +44,15 @@ export default function ResourcesScreen() {
           {item.module} • {item.type} • {item.taille}
         </Text>
       </View>
-    </View>
+
+      <TouchableOpacity onPress={() => toggleFavorite(item.id)} style={{ padding: 10 }}>
+        <Ionicons
+          name={favorites.includes(item.id) ? 'bookmark' : 'bookmark-outline'}
+          size={24}
+          color={favorites.includes(item.id) ? colors.primary : colors.textGray}
+        />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 
   return (
@@ -27,18 +60,27 @@ export default function ResourcesScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Ressources</Text>
       </View>
-      <FlatList
-        data={MOCK_RESSOURCES}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        showsVerticalScrollIndicator={false}
-      />
+
+      {isLoading ? (
+        <View style={{ padding: 16 }}>
+          <SkeletonLoader />
+          <SkeletonLoader />
+          <SkeletonLoader />
+          <SkeletonLoader />
+        </View>
+      ) : (
+        <FlatList
+          data={MOCK_RESSOURCES}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
-// Styles dynamiques basés sur le thème
 const getStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },

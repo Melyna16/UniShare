@@ -10,21 +10,25 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { MOCK_ANNONCES } from '../../data/mockData';
+import { router } from 'expo-router';
 import AnnouncementCard from '../../components/AnnouncementCard';
 import { useTheme } from '../../context/ThemeContext';
+import { useUser } from '../../context/UserContext';
+import { useAnnouncements } from '../../context/AnnouncementContext'; // <-- Import
 
 const FILTERS = ['Tout', 'Officiel', 'Urgent', 'Entraide'];
 
 export default function AccueilScreen() {
   const { colors, theme, toggleTheme } = useTheme();
+  const { isDelegateMode } = useUser();
+  const { annonces } = useAnnouncements(); // <-- Récupération des annonces
   const styles = getStyles(colors);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Tout');
-  const [isDelegateMode, setIsDelegateMode] = useState(false);
 
-  const filteredAnnonces = MOCK_ANNONCES.filter((annonce) => {
+  const filteredAnnonces = annonces.filter((annonce) => {
+    // <-- Utilise "annonces"
     const matchesSearch =
       annonce.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
       annonce.auteur.toLowerCase().includes(searchQuery.toLowerCase());
@@ -37,16 +41,13 @@ export default function AccueilScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>M</Text>
           </View>
           <Text style={styles.appName}>UniShare</Text>
-
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
-            {/* Bouton Light/Dark Mode */}
             <TouchableOpacity onPress={toggleTheme}>
               <Ionicons
                 name={theme === 'dark' ? 'sunny-outline' : 'moon-outline'}
@@ -54,7 +55,6 @@ export default function AccueilScreen() {
                 color={colors.text}
               />
             </TouchableOpacity>
-
             <TouchableOpacity>
               <Ionicons name="notifications-outline" size={24} color={colors.text} />
               <View style={[styles.notificationDot, { backgroundColor: colors.danger }]} />
@@ -62,25 +62,8 @@ export default function AccueilScreen() {
           </View>
         </View>
         <Text style={styles.welcomeText}>Bonjour Melyna 👋</Text>
-
-        <TouchableOpacity
-          style={[styles.delegateToggle, isDelegateMode && { backgroundColor: colors.primary }]}
-          onPress={() => setIsDelegateMode(!isDelegateMode)}
-        >
-          <Ionicons
-            name={isDelegateMode ? 'shield-checkmark' : 'shield-outline'}
-            size={16}
-            color={isDelegateMode ? '#FFF' : colors.text}
-          />
-          <Text
-            style={[styles.delegateToggleText, { color: isDelegateMode ? '#FFF' : colors.text }]}
-          >
-            Mode Délégué {isDelegateMode ? 'ON' : 'OFF'}
-          </Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Recherche */}
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color={colors.textGray} />
         <TextInput
@@ -93,7 +76,6 @@ export default function AccueilScreen() {
         <Ionicons name="sparkles" size={20} color={colors.primary} />
       </View>
 
-      {/* Filtres */}
       <View style={{ height: 50 }}>
         <ScrollView
           horizontal
@@ -127,9 +109,8 @@ export default function AccueilScreen() {
         </ScrollView>
       </View>
 
-      {/* Liste */}
       <FlatList
-        data={filteredAnnonces}
+        data={filteredAnnonces} // <-- Utilise les données filtrées du contexte
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <AnnouncementCard item={item} isDelegateMode={isDelegateMode} />}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
@@ -141,15 +122,16 @@ export default function AccueilScreen() {
         }
       />
 
-      {/* Bouton flottant */}
-      <TouchableOpacity style={[styles.fab, { backgroundColor: colors.primary }]}>
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        onPress={() => router.push('/post/create')}
+      >
         <Ionicons name="add" size={30} color="#FFF" />
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
-// Styles dynamiques
 const getStyles = (colors: any) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -179,20 +161,6 @@ const getStyles = (colors: any) =>
       borderRadius: 4,
     },
     welcomeText: { fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 10 },
-    delegateToggle: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignSelf: 'flex-start',
-      backgroundColor: colors.card,
-      paddingVertical: 6,
-      paddingHorizontal: 12,
-      borderRadius: 20,
-      marginTop: 5,
-      gap: 5,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    delegateToggleText: { fontSize: 12, fontWeight: 'bold' },
     searchContainer: {
       flexDirection: 'row',
       alignItems: 'center',

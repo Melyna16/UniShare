@@ -1,18 +1,36 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native'; // <-- Ajout de Platform
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useAnnouncements, Annonce } from '../context/AnnouncementContext';
 
 interface AnnouncementCardProps {
-  item: any;
+  item: Annonce;
   isDelegateMode: boolean;
 }
 
 export default function AnnouncementCard({ item, isDelegateMode }: AnnouncementCardProps) {
   const { colors } = useTheme();
+  const { deleteAnnonce } = useAnnouncements();
   const styles = getStyles(colors);
 
   const showAIModeration = isDelegateMode && item.isSuspect;
+  const isMyPost = item.auteur === 'Melyna Doe';
+
+  const handleDelete = () => {
+    // ✅ CORRECTION ICI : On gère le Web et le Mobile séparément
+    if (Platform.OS === 'web') {
+      const confirmDelete = window.confirm('Voulez-vous vraiment supprimer cette annonce ?');
+      if (confirmDelete) {
+        deleteAnnonce(item.id);
+      }
+    } else {
+      Alert.alert("Supprimer l'annonce", 'Voulez-vous vraiment supprimer cette annonce ?', [
+        { text: 'Annuler', style: 'cancel' },
+        { text: 'Supprimer', style: 'destructive', onPress: () => deleteAnnonce(item.id) },
+      ]);
+    }
+  };
 
   return (
     <View style={[styles.card, showAIModeration && styles.cardSuspect]}>
@@ -44,11 +62,22 @@ export default function AnnouncementCard({ item, isDelegateMode }: AnnouncementC
             </Text>
           </View>
         </View>
-        <Text style={styles.cardDate}>{item.date}</Text>
+
+        {/* Date et Bouton Supprimer */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Text style={styles.cardDate}>{item.date}</Text>
+
+          {isMyPost && (
+            <TouchableOpacity onPress={handleDelete} style={{ padding: 4 }}>
+              <Ionicons name="trash-outline" size={18} color={colors.danger} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {/* Contenu */}
       <Text style={styles.cardTitle}>{item.titre}</Text>
+      {item.contenu ? <Text style={styles.cardContenu}>{item.contenu}</Text> : null}
 
       {/* Modération IA */}
       {showAIModeration && (
@@ -66,7 +95,10 @@ export default function AnnouncementCard({ item, isDelegateMode }: AnnouncementC
             <TouchableOpacity style={[styles.aiButton, { backgroundColor: colors.success }]}>
               <Text style={styles.aiButtonText}>Approuver</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.aiButton, { backgroundColor: colors.danger }]}>
+            <TouchableOpacity
+              style={[styles.aiButton, { backgroundColor: colors.danger }]}
+              onPress={handleDelete}
+            >
               <Text style={styles.aiButtonText}>Supprimer</Text>
             </TouchableOpacity>
           </View>
@@ -91,7 +123,6 @@ export default function AnnouncementCard({ item, isDelegateMode }: AnnouncementC
   );
 }
 
-// Styles dynamiques
 const getStyles = (colors: any) =>
   StyleSheet.create({
     card: { backgroundColor: colors.card, padding: 16, borderRadius: 12, marginBottom: 16 },
@@ -106,7 +137,14 @@ const getStyles = (colors: any) =>
     roleBadge: { marginLeft: 8, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
     roleText: { fontSize: 10, fontWeight: 'bold' },
     cardDate: { color: colors.textGray, fontSize: 12 },
-    cardTitle: { color: colors.text, fontSize: 16, marginBottom: 15, lineHeight: 22 },
+    cardTitle: {
+      color: colors.text,
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginBottom: 8,
+      lineHeight: 22,
+    },
+    cardContenu: { color: colors.textGray, fontSize: 14, marginBottom: 15, lineHeight: 20 },
     aiBox: {
       backgroundColor: colors.danger + '15',
       padding: 12,

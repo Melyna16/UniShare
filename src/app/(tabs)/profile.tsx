@@ -2,9 +2,11 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/ThemeContext';
+import { useUser } from '../../context/UserContext'; // <-- Import
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
+  const { isDelegateMode, toggleDelegateMode } = useUser(); // <-- Récupération de l'état
   const styles = getStyles(colors);
 
   return (
@@ -49,6 +51,32 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* BOUTON MODE DÉLÉGUÉ */}
+        <TouchableOpacity
+          style={[
+            styles.delegateToggle,
+            isDelegateMode && { backgroundColor: colors.primary, borderColor: colors.primary },
+          ]}
+          onPress={toggleDelegateMode}
+        >
+          <Ionicons
+            name={isDelegateMode ? 'shield-checkmark' : 'shield-outline'}
+            size={20}
+            color={isDelegateMode ? '#FFF' : colors.text}
+          />
+          <Text
+            style={[styles.delegateToggleText, { color: isDelegateMode ? '#FFF' : colors.text }]}
+          >
+            Mode Délégué {isDelegateMode ? 'ON' : 'OFF'}
+          </Text>
+          <Ionicons
+            name={isDelegateMode ? 'toggle' : 'toggle-outline'}
+            size={24}
+            color={isDelegateMode ? '#FFF' : colors.textGray}
+            style={{ marginLeft: 'auto' }}
+          />
+        </TouchableOpacity>
+
         {/* Menu des paramètres */}
         <View style={styles.menuContainer}>
           <TouchableOpacity style={styles.menuItem}>
@@ -63,7 +91,7 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color={colors.textGray} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={[styles.menuItem, { borderBottomWidth: 0 }]}>
             <Ionicons name="help-circle-outline" size={22} color={colors.text} />
             <Text style={styles.menuText}>Aide & Support</Text>
             <Ionicons name="chevron-forward" size={20} color={colors.textGray} />
@@ -123,7 +151,7 @@ const getStyles = (colors: any) =>
       padding: 20,
       justifyContent: 'space-around',
       alignItems: 'center',
-      marginBottom: 30,
+      marginBottom: 20,
       borderWidth: 1,
       borderColor: colors.border,
     },
@@ -131,6 +159,19 @@ const getStyles = (colors: any) =>
     statNumber: { fontSize: 20, fontWeight: 'bold', color: colors.text },
     statLabel: { fontSize: 12, color: colors.textGray, marginTop: 4 },
     statDivider: { width: 1, height: 30 },
+    delegateToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      marginBottom: 30,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 10,
+    },
+    delegateToggleText: { fontSize: 16, fontWeight: 'bold' },
     menuContainer: {
       backgroundColor: colors.card,
       borderRadius: 16,
