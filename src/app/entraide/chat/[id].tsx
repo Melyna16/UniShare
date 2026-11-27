@@ -11,18 +11,15 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router, useLocalSearchParams } from 'expo-router'; // <-- Import de useLocalSearchParams
+import { router, useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../../context/ThemeContext';
 
-// 1. On crée un dictionnaire de conversations basé sur l'ID de l'objet
 const MOCK_CHATS: Record<string, any[]> = {
   '1': [
-    // Conversation pour le Livre Algorithmique (Karim B.)
     { id: '1', text: 'Salut Karim ! Le livre est toujours dispo ?', sender: 'me' },
     { id: '2', text: 'Salut ! Oui oui, je te le ramène demain en cours.', sender: 'other' },
   ],
   '2': [
-    // Conversation pour la Calculatrice (Sarah M.)
     { id: '1', text: 'Salut ! La calculatrice est toujours disponible ?', sender: 'me' },
     {
       id: '2',
@@ -36,18 +33,18 @@ export default function ChatScreen() {
   const { colors } = useTheme();
   const styles = getStyles(colors);
 
-  // 2. On récupère l'ID de l'URL
   const { id } = useLocalSearchParams();
 
-  // 3. On initialise les messages en fonction de l'ID, ou un tableau vide par défaut
+  // ✅ CORRECTION ICI : On ajoute || '' pour garantir que c'est toujours un string
+  const itemId = (Array.isArray(id) ? id[0] : id) || '';
+
   const [messages, setMessages] = useState(
-    MOCK_CHATS[id as string] || [{ id: '1', text: 'Début de la discussion...', sender: 'other' }]
+    MOCK_CHATS[itemId] || [{ id: '1', text: 'Début de la discussion...', sender: 'other' }]
   );
 
   const [input, setInput] = useState('');
 
-  // On change le titre de l'en-tête selon la personne
-  const chatName = id === '1' ? 'Karim B.' : 'Sarah M.';
+  const chatName = itemId === '1' ? 'Karim B.' : itemId === '2' ? 'Sarah M.' : 'Utilisateur';
 
   const sendMessage = () => {
     if (input.trim() === '') return;
@@ -76,7 +73,6 @@ export default function ChatScreen() {
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 10 }}>
           <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        {/* Titre dynamique */}
         <Text style={styles.headerTitle}>Discussion avec {chatName}</Text>
         <View style={{ width: 44 }} />
       </View>

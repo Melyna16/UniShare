@@ -28,8 +28,8 @@ export default function EntraideScreen() {
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.card}
-      // ✅ CORRECTION ICI : Syntaxe objet pour TypeScript
-      onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.id } })}
+      // ✅ CORRECTION : Le chemin pointe bien vers /entraide/chat/
+      onPress={() => router.push({ pathname: '/entraide/chat/[id]', params: { id: item.id } })}
     >
       <View style={styles.imagePlaceholder}>
         <Ionicons name={item.icon as any} size={40} color={colors.primary} />
