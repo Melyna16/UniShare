@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -11,6 +19,7 @@ import SkeletonLoader from '../../components/SkeletonLoader';
 
 export default function ResourcesScreen() {
   const { colors } = useTheme();
+  // ✅ Sécurité : on donne une valeur par défaut si specialty est vide
   const { userRole, specialty } = useUser();
   const { createConversation } = useMessages();
   const styles = getStyles(colors);
@@ -33,17 +42,30 @@ export default function ResourcesScreen() {
   };
 
   const handleSubmitResource = () => {
-    if (!specialty) return;
+    // ✅ Sécurité : si la spécialité n'est pas définie, on ne fait rien
+    if (!specialty) {
+      Alert.alert('Erreur', 'Veuillez sélectionner une spécialité dans votre profil.');
+      return;
+    }
+
     const delegate = MOCK_DELEGATES[specialty];
+
+    // ✅ Sécurité : on vérifie que le délégué existe
+    if (!delegate) {
+      Alert.alert('Erreur', `Aucun délégué trouvé pour la spécialité ${specialty}.`);
+      return;
+    }
+
     const newConv = createConversation({
       id: `res-${Date.now()}`,
       type: 'resource',
       title: 'Nouvelle soumission de cours',
       participantName: delegate.name,
-      specialty,
+      specialty: specialty,
       submittedBy: 'Melyna Doe',
       status: 'pending',
     });
+
     router.push({ pathname: '/chat/[id]', params: { id: newConv.id } });
   };
 
@@ -78,6 +100,7 @@ export default function ResourcesScreen() {
         <Text style={styles.headerTitle}>Ressources</Text>
       </View>
 
+      {/* ✅ Sécurité : on affiche la bannière seulement si les conditions sont remplies */}
       {userRole === 'Étudiant' && specialty && (
         <TouchableOpacity onPress={handleSubmitResource} style={styles.submitBanner}>
           <Ionicons name="cloud-upload-outline" size={20} color={colors.primary} />

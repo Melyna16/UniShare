@@ -1,11 +1,12 @@
 // ============================================
-// ANNOUNCEMENTS
+// ANNOUNCEMENTS (Updated with comments & likes)
 // ============================================
 
 export const MOCK_ANNONCES = [
   {
     id: '1',
     titre: 'Nouvelle machine à café à la cafétéria',
+    contenu: 'Une nouvelle machine à café a été installée. Le café est à 50 DA.',
     auteur: 'Admin Faculté',
     role: 'Admin',
     date: 'Il y a 2h',
@@ -14,10 +15,28 @@ export const MOCK_ANNONCES = [
     isSuspect: false,
     likes: 12,
     comments: 3,
+    isLiked: false,
+    commentsList: [
+      { id: 'c1', author: 'Sarah M.', text: "Enfin ! Merci pour l'info." },
+      {
+        id: 'c2',
+        parentId: 'c1',
+        replyToAuthor: 'Sarah M.',
+        author: 'Karim B.',
+        text: "Oui, c'était le temps ! J'y vais de ce pas.",
+      },
+      {
+        id: 'c3',
+        author: 'Admin Faculté',
+        text: "N'hésitez pas à nous faire des retours sur le goût !",
+      },
+    ],
   },
   {
     id: '2',
     titre: 'Report du cours de Base de données',
+    contenu:
+      'Le cours de ce matin est reporté à la semaine prochaine. Le planning vous sera envoyé.',
     auteur: 'Délégué M2 ISII',
     role: 'Délégué',
     date: 'Il y a 5h',
@@ -25,11 +44,24 @@ export const MOCK_ANNONCES = [
     riskScore: null,
     isSuspect: false,
     likes: 45,
-    comments: 10,
+    comments: 3,
+    isLiked: false,
+    commentsList: [
+      { id: 'c4', author: 'Yacine T.', text: "Merci pour l'info, on sera là à 8h." },
+      {
+        id: 'c5',
+        parentId: 'c4',
+        replyToAuthor: 'Yacine T.',
+        author: 'Délégué M2 ISII',
+        text: 'Parfait Yacine, à demain !',
+      },
+      { id: 'c6', author: 'Amine K.', text: "C'est reporté à quelle date exactement ?" },
+    ],
   },
   {
     id: '3',
     titre: 'Cherche partenaire pour projet IA',
+    contenu: "Je cherche quelqu'un de motivé pour faire le projet de Machine Learning.",
     auteur: 'Sarah M.',
     role: 'Étudiant',
     date: 'Hier',
@@ -38,10 +70,15 @@ export const MOCK_ANNONCES = [
     isSuspect: false,
     likes: 5,
     comments: 1,
+    isLiked: false,
+    commentsList: [
+      { id: 'c7', author: 'Yacine T.', text: "Je suis intéressé, je t'envoie un message privé." },
+    ],
   },
   {
     id: '4',
     titre: "GAGNEZ DE L'ARGENT RAPIDEMENT ! Cliquez sur ce lien",
+    contenu: 'Gagnez 50000 DA par jour en travaillant de chez vous...',
     auteur: 'Inconnu_22',
     role: 'Étudiant',
     date: 'Il y a 1 jour',
@@ -50,6 +87,8 @@ export const MOCK_ANNONCES = [
     isSuspect: true,
     likes: 0,
     comments: 0,
+    isLiked: false,
+    commentsList: [],
   },
 ];
 
@@ -71,7 +110,7 @@ export const MOCK_RESSOURCES = [
 ];
 
 // ============================================
-// MESSAGING SYSTEM
+// MESSAGING SYSTEM (Kept from our previous work)
 // ============================================
 
 export type Specialty = 'ISII' | 'RSE';
@@ -124,7 +163,11 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
     updatedAt: 'Hier',
     messages: [
       { id: '1', text: 'Salut ! La calculatrice est toujours disponible ?', sender: 'me' },
-      { id: '2', text: 'Oui bien sûr, tu peux passer la récupérer à la bibliothèque.', sender: 'other' },
+      {
+        id: '2',
+        text: 'Oui bien sûr, tu peux passer la récupérer à la bibliothèque.',
+        sender: 'other',
+      },
     ],
   },
   {

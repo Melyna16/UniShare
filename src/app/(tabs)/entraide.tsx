@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '../../context/ThemeContext';
 
+// ✅ J'ai ajouté 6 nouvelles offres avec des icônes et des états différents
 const MOCK_ENTRAIDE = [
   {
     id: '1',
@@ -19,6 +20,48 @@ const MOCK_ENTRAIDE = [
     proprietaire: 'Sarah M.',
     icon: 'calculator',
   },
+  {
+    id: '3',
+    titre: 'Cours de Réseaux (L3)',
+    etat: 'Usé',
+    proprietaire: 'Yasmine K.',
+    icon: 'document-text',
+  },
+  {
+    id: '4',
+    titre: 'Matériel de dessin',
+    etat: 'Neuf',
+    proprietaire: 'Amine T.',
+    icon: 'color-palette',
+  },
+  {
+    id: '5',
+    titre: 'Kit Arduino',
+    etat: 'Bon état',
+    proprietaire: 'Rayan M.',
+    icon: 'hardware-chip',
+  },
+  {
+    id: '6',
+    titre: 'Casque Audio Sony',
+    etat: 'Comme neuf',
+    proprietaire: 'Lina B.',
+    icon: 'headset',
+  },
+  {
+    id: '7',
+    titre: 'BD One Piece T.1',
+    etat: 'Bon état',
+    proprietaire: 'Yacine T.',
+    icon: 'library',
+  },
+  {
+    id: '8',
+    titre: 'Règle et Compas',
+    etat: 'Usé',
+    proprietaire: 'Melyna D.',
+    icon: 'pencil',
+  },
 ];
 
 export default function EntraideScreen() {
@@ -28,7 +71,6 @@ export default function EntraideScreen() {
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={styles.card}
-      // ✅ CORRECTION : Le chemin pointe bien vers /entraide/chat/
       onPress={() => router.push({ pathname: '/entraide/chat/[id]', params: { id: item.id } })}
     >
       <View style={styles.imagePlaceholder}>
@@ -65,6 +107,7 @@ export default function EntraideScreen() {
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}
       />
     </SafeAreaView>
   );
