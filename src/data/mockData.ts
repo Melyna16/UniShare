@@ -97,16 +97,10 @@ export const MOCK_ANNONCES = [
 // ============================================
 
 export const MOCK_RESSOURCES = [
-  { id: '1', titre: 'Cours Réseaux Avancés', module: 'Réseaux', type: 'PDF', taille: '2.4 MB' },
-  { id: '2', titre: 'TD 3 - Machine Learning', module: 'IA', type: 'PDF', taille: '1.1 MB' },
-  { id: '3', titre: 'Examen 2023 - Génie Logiciel', module: 'GL', type: 'PDF', taille: '800 KB' },
-  {
-    id: '4',
-    titre: 'TP 1 - Développement Mobile',
-    module: 'Mobile',
-    type: 'ZIP',
-    taille: '5.2 MB',
-  },
+  { id: '1', titre: 'Cours Réseaux Avancés', module: 'Réseaux', type: 'PDF', taille: '2.4 MB', specialty: 'ISII' },
+  { id: '2', titre: 'TD 3 - Machine Learning', module: 'IA', type: 'PDF', taille: '1.1 MB', specialty: 'RSE' },
+  { id: '3', titre: 'Examen 2023 - Génie Logiciel', module: 'GL', type: 'PDF', taille: '800 KB', specialty: 'ISII' },
+  { id: '4', titre: 'TP 1 - Développement Mobile', module: 'Mobile', type: 'ZIP', taille: '5.2 MB', specialty: 'RSE' },
 ];
 
 // ============================================
@@ -190,4 +184,26 @@ export const MOCK_CONVERSATIONS: Conversation[] = [
       { id: '2', text: "J'ai bien reçu ton PDF, je le vérifie ce soir.", sender: 'other' },
     ],
   },
+];
+// ============================================
+// ADMIN USER MANAGEMENT
+// ============================================
+
+export type UserStatus = 'active' | 'banned' | 'pending_delegate';
+
+export interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Étudiant' | 'Délégué' | 'Admin';
+  specialty?: Specialty;
+  status: UserStatus;
+}
+
+export const MOCK_USERS: AdminUser[] = [
+  { id: 'u1', name: 'Melyna Doe', email: 'melyna@univ.dz', role: 'Étudiant', specialty: 'ISII', status: 'active' },
+  { id: 'u2', name: 'Karim B.', email: 'karim@univ.dz', role: 'Délégué', specialty: 'ISII', status: 'active' },
+  { id: 'u3', name: 'Sarah M.', email: 'sarah@univ.dz', role: 'Étudiant', specialty: 'RSE', status: 'active' },
+  { id: 'u4', name: 'Yacine T.', email: 'yacine@univ.dz', role: 'Étudiant', specialty: 'ISII', status: 'pending_delegate' },
+  { id: 'u5', name: 'Spam Bot', email: 'bot@spam.com', role: 'Étudiant', specialty: 'ISII', status: 'banned' },
 ];

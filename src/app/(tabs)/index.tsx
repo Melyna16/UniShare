@@ -13,22 +13,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import AnnouncementCard from '../../components/AnnouncementCard';
 import { useTheme } from '../../context/ThemeContext';
-import { useUser } from '../../context/UserContext';
-import { useAnnouncements } from '../../context/AnnouncementContext'; // <-- Import
+import { useAnnouncements } from '../../context/AnnouncementContext';
 
 const FILTERS = ['Tout', 'Officiel', 'Urgent', 'Entraide'];
 
 export default function AccueilScreen() {
   const { colors, theme, toggleTheme } = useTheme();
-  const { isDelegateMode } = useUser();
-  const { annonces } = useAnnouncements(); // <-- Récupération des annonces
+  const { annonces } = useAnnouncements();
   const styles = getStyles(colors);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Tout');
 
   const filteredAnnonces = annonces.filter((annonce) => {
-    // <-- Utilise "annonces"
     const matchesSearch =
       annonce.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
       annonce.auteur.toLowerCase().includes(searchQuery.toLowerCase());
@@ -55,22 +52,10 @@ export default function AccueilScreen() {
                 color={colors.text}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-  onPress={() => router.push('/notifications')}
-  activeOpacity={0.7}
->
-  <Ionicons
-    name="notifications-outline"
-    size={24}
-    color={colors.text}
-  />
-  <View
-    style={[
-      styles.notificationDot,
-      { backgroundColor: colors.danger },
-    ]}
-  />
-</TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('../notifications')} activeOpacity={0.7}>
+              <Ionicons name="notifications-outline" size={24} color={colors.text} />
+              <View style={[styles.notificationDot, { backgroundColor: colors.danger }]} />
+            </TouchableOpacity>
           </View>
         </View>
         <Text style={styles.welcomeText}>Bonjour Melyna 👋</Text>
@@ -122,9 +107,9 @@ export default function AccueilScreen() {
       </View>
 
       <FlatList
-        data={filteredAnnonces} // <-- Utilise les données filtrées du contexte
+        data={filteredAnnonces}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <AnnouncementCard item={item} isDelegateMode={isDelegateMode} />}
+        renderItem={({ item }) => <AnnouncementCard item={item} />}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={

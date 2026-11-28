@@ -13,15 +13,17 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext'; // ✅ Import added
 import { useAnnouncements, Annonce } from '../context/AnnouncementContext';
 
 interface AnnouncementCardProps {
   item: Annonce;
-  isDelegateMode: boolean;
+  // ✅ Removed isDelegateMode from props
 }
 
-export default function AnnouncementCard({ item, isDelegateMode }: AnnouncementCardProps) {
+export default function AnnouncementCard({ item }: AnnouncementCardProps) {
   const { colors } = useTheme();
+  const { userRole } = useUser(); // ✅ Get current role
   const { deleteAnnonce, toggleLike, addComment } = useAnnouncements();
   const styles = getStyles(colors);
 
@@ -29,7 +31,8 @@ export default function AnnouncementCard({ item, isDelegateMode }: AnnouncementC
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<{ id: string; author: string } | null>(null);
 
-  const showAIModeration = isDelegateMode && item.isSuspect;
+  // ✅ AI Moderation is now EXCLUSIVE to Admin
+  const showAIModeration = userRole === 'Admin' && item.isSuspect;
   const isMyPost = item.auteur === 'Melyna Doe';
 
   const handleDelete = () => {

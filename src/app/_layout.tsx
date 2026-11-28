@@ -5,6 +5,7 @@ import { ThemeProvider } from '../context/ThemeContext';
 import { UserProvider, useUser } from '../context/UserContext';
 import { AnnouncementProvider } from '../context/AnnouncementContext';
 import { MessageProvider } from '../context/MessageContext';
+import { ResourceProvider } from '../context/ResourceContext'; // ✅ Added
 
 function RootLayoutNav() {
   const { isAuthenticated } = useUser();
@@ -38,7 +39,10 @@ export default function RootLayout() {
       <UserProvider>
         <AnnouncementProvider>
           <MessageProvider>
-            <RootLayoutNav />
+            {/* ✅ ResourceProvider added here */}
+            <ResourceProvider>
+              <RootLayoutNav />
+            </ResourceProvider>
           </MessageProvider>
         </AnnouncementProvider>
       </UserProvider>

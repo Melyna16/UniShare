@@ -8,6 +8,7 @@ interface UserContextType {
   userRole: UserRole | null;
   specialty: Specialty | null;
   isDelegateMode: boolean;
+  isAdminMode: boolean; // ✅ Added
   login: (role: UserRole, specialty: Specialty | null) => void;
   logout: () => void;
 }
@@ -32,9 +33,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const isDelegateMode = userRole === 'Délégué' || userRole === 'Admin';
+  const isAdminMode = userRole === 'Admin'; // ✅ Added
 
   return (
-    <UserContext.Provider value={{ isAuthenticated, userRole, specialty, isDelegateMode, login, logout }}>
+    <UserContext.Provider
+      value={{ isAuthenticated, userRole, specialty, isDelegateMode, isAdminMode, login, logout }}
+    >
       {children}
     </UserContext.Provider>
   );
